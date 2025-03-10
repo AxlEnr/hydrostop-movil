@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="edit_new_password" type="id" />
+    <item name="edit_confirm_password" type="id" />
+    <item name="text_showers_left" type="id" />
+</resources>
