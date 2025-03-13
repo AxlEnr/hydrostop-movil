@@ -1,91 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:background="@drawable/fondo"
-    android:gravity="center">
+    android:padding="16dp">
 
-
+    <!-- Header: Imagen y Nombre -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="-150dp"
-        android:gravity="center">
+        android:gravity="center_vertical"
+        android:paddingBottom="20dp">
 
         <ImageView
             android:id="@+id/profile_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_profile" />
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/ic_profile"
+            android:layout_marginEnd="15dp" />
 
         <TextView
             android:id="@+id/text_user"
-            android:layout_width="256dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Kevin"
             android:textSize="22sp"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
     </LinearLayout>
+
+    <!-- Sección: Cambiar Contraseña -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cambiar Contraseña"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingTop="10dp"/>
+
+    <EditText
+        android:id="@+id/new_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:hint="Nueva Contraseña"
+        android:inputType="textPassword"
+        android:padding="12dp"/>
+
+    <EditText
+        android:id="@+id/confirm_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:hint="Confirmar Contraseña"
+        android:inputType="textPassword"
+        android:padding="12dp"/>
+
+    <Button
+        android:id="@+id/btn_save_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="@color/black"
+        android:text="GUARDAR CONTRASEÑA"
+        android:textColor="@android:color/white" />
+
+    <!-- Sección: Actualizar Información -->
+
+    <Button
+        android:id="@+id/btn_update_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="@color/black"
+        android:text="ACTUALIZAR INFORMACIÓN"
+        android:textColor="@android:color/white"/>
+
+    <!-- Sección: Cerrar Sesión -->
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/red"
+        android:text="CERRAR SESIÓN"
+        android:textColor="@android:color/white"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/white"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Duchas restantes de la semana"
-            android:textSize="18sp"
-            android:background="@color/white"/>
-
-        <TextView
-            android:id="@+id/welcomeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="4 Duchas"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:background="@color/white"
-            />
-    </LinearLayout>
-
-    <!-- Cuadro de botón de inicio de ducha -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="152dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/white"
-        android:gravity="center"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp">
+        android:background="#AAFFFFFF"
+        android:layout_alignParentBottom="true"
+        android:padding="8dp"
+        android:layout_marginTop="194dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Iniciar Ducha"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:background="@color/white"/>
+        <ImageView
+            android:id="@+id/nav_home"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_home"
+            android:layout_weight="1"
+            android:gravity="center" />
 
-        <Switch
-            android:id="@+id/switch_shower"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+        <ImageView
+            android:id="@+id/nav_notification"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_bell"
+            android:layout_weight="1"
+            android:gravity="center" />
 
+        <ImageView
+            android:id="@+id/nav_profile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_shower"
+            android:layout_weight="1"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/nav_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_settings"
+            android:layout_weight="1"
+            android:gravity="center" />
     </LinearLayout>
 
 </LinearLayout>

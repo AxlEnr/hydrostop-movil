@@ -52,12 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Método para hacer la solicitud de inicio de sesión
     private void login(String username, String password) {
-        // URL de la API para autenticación (modificar con tu URL)
-        String url = "http://192.168.1.125:8000/api/users/login/";  // Usa la IP de tu máquina en la red local o URL remota
+        String url = "http://192.168.1.124:8000/api/users/login/";  // Usa la IP de tu máquina en la red local o URL remota
 
         OkHttpClient client = new OkHttpClient();
 
-        // Crear JSON con las credenciales del usuario
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("email", username);
@@ -68,16 +66,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Crear RequestBody y definir el tipo de contenido
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonBody.toString());
 
-        // Crear la solicitud HTTP (POST)
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
 
-        // Realizar la solicitud en segundo plano (fuera del hilo principal)
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -90,23 +85,35 @@ public class MainActivity extends AppCompatActivity {
                     String responseData = response.body().string();
                     runOnUiThread(() -> {
                         try {
-                            // Parsear la respuesta JSON y verificar el token
                             JSONObject jsonResponse = new JSONObject(responseData);
-                            if (jsonResponse.has("access") && jsonResponse.has("refresh")) {
+                            if (jsonResponse.has("access") && jsonResponse.has("refresh") && jsonResponse.has("user")) {
                                 String accessToken = jsonResponse.getString("access");
                                 String refreshToken = jsonResponse.getString("refresh");
 
-                                // Guardar los tokens (ejemplo con SharedPreferences)
+                                // Obtener el objeto "user" y acceder al campo "role"
+                                JSONObject user = jsonResponse.getJSONObject("user");
+                                String role = user.getString("role");  // Obtener el rol del usuario
+
+                                // Guardar los tokens y el rol
                                 getSharedPreferences("UserPrefs", MODE_PRIVATE)
                                         .edit()
                                         .putString("access_token", accessToken)
                                         .putString("refresh_token", refreshToken)
+                                        .putString("role", role)
                                         .apply();
 
-                                // Redirigir al usuario a la siguiente pantalla
-                                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
-                                startActivity(intent);
-                                finish();  // Cierra esta actividad
+                                // Redirigir basado en el rol
+                                Intent intent;
+                                if (role.equals("admin")) {
+                                    intent = new Intent(MainActivity.this, MainActivity2.class);
+                                    startActivity(intent);
+                                    finish();  // Cierra esta actividad
+                                } else {
+                                    intent = new Intent(MainActivity.this, UsuarioScreen.class);
+                                    startActivity(intent);
+                                    finish();  // Cierra esta actividad
+                                }
+
                             } else {
                                 Toast.makeText(MainActivity.this, "Respuesta inesperada del servidor", Toast.LENGTH_SHORT).show();
                             }

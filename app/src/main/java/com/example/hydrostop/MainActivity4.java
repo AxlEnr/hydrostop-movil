@@ -18,12 +18,46 @@ public class MainActivity4 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main3);
+        setContentView(R.layout.activity_main4);
 
-        // Vincular elementos del layout
-        spinnerTimeLimit = findViewById(R.id.spinner_time_limit);
-        spinnerNotificationTime = findViewById(R.id.spinner_notification_time);
         btnSave = findViewById(R.id.btn_save); // Agrega este botón en tu XML
+
+        // Configurar los listeners para los íconos de la barra de navegación
+        findViewById(R.id.nav_home).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Enviar al MainActivity2
+                Intent intent = new Intent(MainActivity4.this, MainActivity2.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.nav_settings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Enviar al MainActivity4 (Configuración)
+                Intent intent = new Intent(MainActivity4.this, MainActivity4.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.nav_profile).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Enviar al CreateUserActivity (Formulario para crear usuarios)
+                Intent intent = new Intent(MainActivity4.this, CreateUsers.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.nav_notification).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Enviar a la pantalla de notificaciones
+                Intent intent = new Intent(MainActivity4.this, notification.class);
+                startActivity(intent);
+            }
+        });
 
         // Botón para guardar y pasar a MainActivity5
         btnSave.setOnClickListener(new View.OnClickListener() {

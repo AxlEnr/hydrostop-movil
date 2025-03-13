@@ -36,18 +36,6 @@
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
-    <!-- Add Button for Configuring Time -->
-    <Button
-        android:id="@+id/btnconfig_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Modificar tiempo"
-        android:layout_marginTop="16dp"
-        android:background="@color/blue"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:padding="12dp" />
-
     <!-- Shower Usage Details -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -59,7 +47,7 @@
         <LinearLayout
             android:id="@+id/shower_1_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:background="#AAFFFFFF"
             android:padding="26dp"
             android:orientation="horizontal">
@@ -102,99 +90,138 @@
                 android:textSize="14sp"
                 android:textColor="#4CAF50"
                 android:layout_gravity="end" />
+
         </LinearLayout>
 
-        <!-- Shower 2 -->
         <LinearLayout
-            android:id="@+id/shower_2_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#AAFFFFFF"
-            android:orientation="horizontal"
-            android:padding="26dp">
-
-            <ImageView
-                android:id="@+id/shower_2_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_shower" />
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#AAFFFFFF"
+                android:padding="26dp"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/shower_2_name"
+
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regadera 2"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
 
-                <TextView
-                    android:id="@+id/shower_2_time"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="En uso por: "
+                        android:textSize="16sp"
+                        android:textColor="#000000" />
+
+                    <TextView
+                        android:id="@+id/idUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Usuario No. 1"
+                        android:textSize="14sp"
+                        android:textColor="#000000"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/nameUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Axel Enrique Garcia Vazquez"
+                        android:textSize="14sp"
+                        android:textColor="#000000"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="8 min restantes"
-                    android:textColor="#000000"
-                    android:textSize="14sp" />
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inicio de ducha: "
+                        android:textSize="16sp"
+                        android:textColor="#000000" />
+
+                    <TextView
+                        android:id="@+id/time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6:00P.M"
+                        android:textSize="14sp"
+                        android:textColor="#000000"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/shower_2_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="EN USO"
-                android:textColor="#4CAF50"
-                android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Shower 3 -->
-        <LinearLayout
-            android:id="@+id/shower_3_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#AAFFFFFF"
-            android:orientation="horizontal"
-            android:padding="26dp">
-
-            <ImageView
-                android:id="@+id/shower_3_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_shower" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/shower_3_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Regadera 3"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/shower_3_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="SIN USO"
-                android:textColor="#C32E1C"
-                android:textSize="14sp" />
-        </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <!-- Shower 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#AAFFFFFF"
+            android:padding="26dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_shower" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regadera 1"
+                    android:textSize="16sp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 min restantes"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EN USO"
+                android:textSize="14sp"
+                android:textColor="#4CAF50"
+                android:layout_gravity="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 
     <!-- Bottom Navigation Bar -->
     <LinearLayout
@@ -203,7 +230,7 @@
         android:orientation="horizontal"
         android:background="#AAFFFFFF"
         android:padding="8dp"
-        android:layout_marginTop="113dp">
+        android:layout_marginTop="168dp">
 
         <ImageView
             android:id="@+id/nav_home"
@@ -237,6 +264,4 @@
             android:layout_weight="1"
             android:gravity="center" />
     </LinearLayout>
-
-
 </LinearLayout>

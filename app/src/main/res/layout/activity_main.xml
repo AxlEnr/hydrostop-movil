@@ -4,21 +4,21 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:padding="16dp"
-    android:background="@drawable/water_background">
+    android:background="@drawable/fondo">
 
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginTop="160dp"
-        android:background="@drawable/hydrostop_logo" />
+        android:layout_marginTop="110dp"
+        android:background="@drawable/logo" />
 
     <TextView
         android:id="@+id/welcomeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="WELCOME"
+        android:text="BIENVENIDO"
         android:textSize="24sp"
         android:textColor="@android:color/black"
         android:textStyle="bold" />
@@ -28,8 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Sign in to continue"
-        android:textSize="16sp"
+        android:text="Inicia Sesión para continuar"
+        android:textSize="20sp"
         android:textColor="@android:color/black" />
 
     <EditText
@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="36dp"
-        android:hint="Username"
+        android:hint="Correo"
         android:background="@drawable/rounded_border"
         android:padding="10dp"
         android:textColor="@android:color/black" />
@@ -47,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="15dp"
-        android:hint="Password"
+        android:hint="Contraseña"
         android:inputType="textPassword"
         android:background="@drawable/rounded_border"
         android:padding="10dp"
@@ -56,19 +56,21 @@
     <Button
         android:id="@+id/btnsignIn"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_marginTop="26dp"
-        android:background="@drawable/rounded_button"
-        android:text="SIGN IN"
-        android:textColor="@android:color/white"
-        android:textStyle="bold" />
+        android:text="Iniciar Sesión"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        />
 
     <TextView
         android:id="@+id/forgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Forgot Password?"
-        android:textSize="14sp"
-        android:textColor="@android:color/black" />
+        android:text="¿Olvidaste la contraseña?"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        />
 </LinearLayout>
