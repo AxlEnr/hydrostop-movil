@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Método para hacer la solicitud de inicio de sesión
     private void login(String username, String password) {
-        String url = "http://192.168.1.124:8000/api/users/login/";  // Usa la IP de tu máquina en la red local o URL remota
+        String url = "http://192.168.0.204:8000/api/users/login/";  // Usa la IP de tu máquina en la red local o URL remota
 
         OkHttpClient client = new OkHttpClient();
 

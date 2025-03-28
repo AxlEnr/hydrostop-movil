@@ -46,5 +46,7 @@ dependencies {
 
     // Gson para convertir JSON a objetos Java
     implementation(libs.gson)
+
+    implementation(libs.okhttp)
 }
 
