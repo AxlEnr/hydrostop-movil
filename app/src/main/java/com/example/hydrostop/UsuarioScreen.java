@@ -1,16 +1,19 @@
 package com.example.hydrostop;
 
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -19,66 +22,132 @@ import okhttp3.Response;
 
 public class UsuarioScreen extends AppCompatActivity {
 
-    private static final String SERVER_IP = "192.168.0.97";
-    private static final int SERVER_PORT = 80;
-    private static final int ALERTA_ANTES = 5; // segundos antes para la alerta
+    private static final int DEFAULT_SHOWER_ID = 1;
+    private static final int ALERT_DURATION_MS = 2500; // 2.5 segundos de sonido
 
-    private EditText tiempoEditText;
+    private TextView showerTimeInfo, alertTimeInfo;
     private Button encenderButton;
     private OkHttpClient client;
     private Handler alertHandler;
     private MediaPlayer mediaPlayer;
+    private int currentShowerTime = 600;
+    private int currentAlertTime = 60;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usuario_screen);
 
-        tiempoEditText = findViewById(R.id.tiempoEditText);
+        // Inicializar vistas
+        showerTimeInfo = findViewById(R.id.shower_time_info);
+        alertTimeInfo = findViewById(R.id.alert_time_info);
         encenderButton = findViewById(R.id.encenderButton);
+
+        // Configurar cliente HTTP y handlers
         client = new OkHttpClient();
         alertHandler = new Handler();
 
-        // Cargar el sonido de notificación del sistema
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mediaPlayer = MediaPlayer.create(this, notification);
+        // Inicializar reproductor con sonido personalizado
+        initMediaPlayer();
 
-        encenderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String tiempoStr = tiempoEditText.getText().toString();
-                if (!tiempoStr.isEmpty()) {
-                    int tiempo = Integer.parseInt(tiempoStr);
-                    if (tiempo > ALERTA_ANTES) { // Asegurarnos que hay tiempo para la alerta
-                        encenderValvula(tiempo);
-                    } else {
-                        Toast.makeText(UsuarioScreen.this,
-                                "El tiempo debe ser mayor a " + ALERTA_ANTES + " segundos",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(UsuarioScreen.this, "Ingresa un tiempo válido", Toast.LENGTH_SHORT).show();
-                }
+        // Cargar configuración
+        loadShowerConfig();
+
+        // Configurar listeners
+        encenderButton.setOnClickListener(v -> {
+            if (currentShowerTime > 0) {
+                encenderValvula(currentShowerTime);
+            } else {
+                showToast("Configuración no cargada correctamente");
             }
         });
     }
 
-    private void encenderValvula(int tiempo) {
-        String url = "http://" + SERVER_IP + "/encender?tiempo=" + tiempo;
+    private void initMediaPlayer() {
+        try {
+            // Usar sonido personalizado desde res/raw
+            mediaPlayer = MediaPlayer.create(this, R.raw.sonido);
+            mediaPlayer.setLooping(false);
+            mediaPlayer.setVolume(1.0f, 1.0f); // Volumen máximo
+        } catch (Exception e) {
+            showToast("Error al cargar sonido de alerta");
+            e.printStackTrace();
+        }
+    }
+
+    private void loadShowerConfig() {
+        String url = "http://192.168.0.204:8000/api/shower/config/" + DEFAULT_SHOWER_ID + "/";
 
         Request request = new Request.Builder()
                 .url(url)
                 .build();
 
-        // Programar la alerta sonora
-        long tiempoAlerta = (tiempo - ALERTA_ANTES) * 1000L; // Convertir a milisegundos
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> showToast("Error al cargar configuración"));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseData = response.body().string();
+                        JSONObject json = new JSONObject(responseData);
+
+                        currentShowerTime = json.getInt("shower_time");
+                        currentAlertTime = json.getInt("alert_time");
+
+                        runOnUiThread(() -> updateUIWithConfig());
+
+                    } catch (JSONException e) {
+                        showToast("Error en formato de respuesta");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateUIWithConfig() {
+        String showerTimeText = formatTime(currentShowerTime);
+        String alertTimeText = formatTime(currentAlertTime);
+
+        showerTimeInfo.setText("Tiempo de flujo: " + showerTimeText);
+        alertTimeInfo.setText("Alerta sonará " + alertTimeText + " antes");
+    }
+
+    private String formatTime(int seconds) {
+        return seconds < 60 ? seconds + " segundos" : (seconds / 60) + " minutos";
+    }
+
+    private void encenderValvula(int tiempo) {
+        String url = "http://192.168.0.97/encender?tiempo=" + tiempo;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        // Programar la alerta
+        long tiempoAlerta = (tiempo - currentAlertTime) * 1000L;
 
         alertHandler.postDelayed(() -> {
             if (mediaPlayer != null) {
-                mediaPlayer.start();
-                Toast.makeText(UsuarioScreen.this,
-                        "La válvula se cerrará en " + ALERTA_ANTES + " segundos",
-                        Toast.LENGTH_SHORT).show();
+                try {
+                    mediaPlayer.start();
+
+                    // Detener después de ALERT_DURATION_MS
+                    new Handler().postDelayed(() -> {
+                        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
+                            mediaPlayer.seekTo(0); // Rebobinar
+                        }
+                    }, ALERT_DURATION_MS);
+
+                    showToast("La válvula se cerrará en " + currentAlertTime + " segundos", Toast.LENGTH_LONG);
+                } catch (IllegalStateException e) {
+                    showToast("Error al reproducir sonido");
+                }
             }
         }, tiempoAlerta);
 
@@ -86,37 +155,36 @@ public class UsuarioScreen extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(UsuarioScreen.this,
-                            "Error al conectar con la válvula: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                    // Cancelar la alerta si hubo error
+                    showToast("Error al conectar con la válvula: " + e.getMessage());
                     alertHandler.removeCallbacksAndMessages(null);
                 });
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    runOnUiThread(() -> Toast.makeText(UsuarioScreen.this,
-                            "Válvula activada por " + tiempo + " segundos",
-                            Toast.LENGTH_SHORT).show());
-                } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(UsuarioScreen.this,
-                                "Error en la respuesta del servidor",
-                                Toast.LENGTH_SHORT).show();
-                        // Cancelar la alerta si hubo error
+                runOnUiThread(() -> {
+                    if (response.isSuccessful()) {
+                        showToast("Válvula activada por " + formatTime(tiempo));
+                    } else {
+                        showToast("Error en la respuesta del servidor");
                         alertHandler.removeCallbacksAndMessages(null);
-                    });
-                }
+                    }
+                });
             }
         });
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showToast(String message, int duration) {
+        Toast.makeText(this, message, duration).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Liberar recursos
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;

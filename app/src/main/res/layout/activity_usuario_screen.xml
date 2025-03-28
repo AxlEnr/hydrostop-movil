@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="#AAFFFFFF"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="26dp">
 
             <ImageView
@@ -76,21 +76,19 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/shower_3_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SIN USO"
+                android:textColor="#C32E1C"
+                android:textSize="14sp" />
+
             <!-- Dentro del LinearLayout de Shower 3, reemplaza el Button existente con: -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/tiempoEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="number"
-                    android:hint="Tiempo (segundos)"
-                    android:text="10"/>
-
                 <Button
                     android:id="@+id/encenderButton"
                     android:layout_width="wrap_content"
@@ -98,14 +96,26 @@
                     android:text="Encender"/>
             </LinearLayout>
 
+
+
+            <!-- Agrega estos TextViews dentro del LinearLayout de cada regadera -->
             <TextView
-                android:id="@+id/shower_3_status"
+                android:id="@+id/shower_time_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="SIN USO"
-                android:textColor="#C32E1C"
-                android:textSize="14sp" />
+                android:layout_marginTop="4dp"
+                android:text="Tiempo: 10 minutos"
+                android:textSize="14sp"
+                android:textColor="#000000"/>
+
+            <TextView
+                android:id="@+id/alert_time_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Alerta: 1 minuto antes"
+                android:textSize="14sp"
+                android:textColor="#000000"/>
 
         </LinearLayout>
 
