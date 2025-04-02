@@ -1,8 +1,10 @@
 package com.example.hydrostop;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,11 +14,19 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class notification extends AppCompatActivity {
 
+    SharedPreferences sharedPreferences;
+    private TextView textUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_notification);
+
+        textUser = findViewById(R.id.text_user);
+        sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
+        loadUserData();
+
         // Configurar los listeners para los íconos de la barra de navegación
         findViewById(R.id.nav_home).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,4 +64,11 @@ public class notification extends AppCompatActivity {
             }
         });
     }
+
+    private void loadUserData() {
+        String first_name = sharedPreferences.getString("first_name", "Usuario");
+        String role = sharedPreferences.getString("role", "user");
+        textUser.setText(first_name + " (" + role + ")");
+    }
+
 }

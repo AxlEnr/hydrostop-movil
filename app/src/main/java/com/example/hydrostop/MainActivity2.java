@@ -1,6 +1,7 @@
 package com.example.hydrostop;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -28,6 +29,8 @@ public class MainActivity2 extends AppCompatActivity {
     private static final int REQUEST_TIME_CONFIG = 1;
     private OkHttpClient client;
     private static final String SHOWER_ID = "1"; // ID de la regadera en el backend
+    private TextView textUser;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +43,27 @@ public class MainActivity2 extends AppCompatActivity {
         showerTime = findViewById(R.id.shower_time);
         showerAlert = findViewById(R.id.shower_alert);
         showerStatus = findViewById(R.id.shower_status);
+        textUser = findViewById(R.id.text_user);
+        sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
 
         // Cargar datos de la regadera al iniciar
         loadShowerData();
+        loadUserData();
 
         setupNavigation();
         setupButtonListeners();
     }
 
+    private void loadUserData() {
+        String first_name = sharedPreferences.getString("first_name", "Usuario");
+        String role = sharedPreferences.getString("role", "user");
+        textUser.setText(first_name + " (" + role + ")");
+    }
+
+
     private void loadShowerData() {
-        String url = "http://192.168.0.204:8000/api/shower/config/" + SHOWER_ID + "/";
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "shower/config/" + SHOWER_ID + "/";
 
         Request request = new Request.Builder()
                 .url(url)
