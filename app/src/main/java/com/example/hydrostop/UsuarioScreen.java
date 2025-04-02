@@ -1,9 +1,12 @@
 package com.example.hydrostop;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +35,11 @@ public class UsuarioScreen extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private int currentShowerTime = 600;
     private int currentAlertTime = 60;
+    private ImageView nav_settings;
+    SharedPreferences sharedPreferences;
+    private TextView textUser;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,16 @@ public class UsuarioScreen extends AppCompatActivity {
         showerTimeInfo = findViewById(R.id.shower_time_info);
         alertTimeInfo = findViewById(R.id.alert_time_info);
         encenderButton = findViewById(R.id.encenderButton);
+        nav_settings = findViewById(R.id.nav_settings);
+        textUser = findViewById(R.id.text_user);
+        sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
+
+        nav_settings.setOnClickListener(v -> {
+            Intent intent = new Intent(UsuarioScreen.this, MainActivity4.class);
+            startActivity(intent);
+            finish();
+        });
+
 
         // Configurar cliente HTTP y handlers
         client = new OkHttpClient();
@@ -52,6 +70,7 @@ public class UsuarioScreen extends AppCompatActivity {
 
         // Cargar configuración
         loadShowerConfig();
+        loadUserData();
 
         // Configurar listeners
         encenderButton.setOnClickListener(v -> {
@@ -61,6 +80,13 @@ public class UsuarioScreen extends AppCompatActivity {
                 showToast("Configuración no cargada correctamente");
             }
         });
+    }
+
+    private void loadUserData(){
+        String first_name = sharedPreferences.getString("first_name", "");
+        String role = sharedPreferences.getString("role", "");
+
+        textUser.setText(first_name + " (" + role + ")");
     }
 
     private void initMediaPlayer() {
@@ -76,7 +102,8 @@ public class UsuarioScreen extends AppCompatActivity {
     }
 
     private void loadShowerConfig() {
-        String url = "http://192.168.0.204:8000/api/shower/config/" + DEFAULT_SHOWER_ID + "/";
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "shower/config/" + DEFAULT_SHOWER_ID + "/";
 
         Request request = new Request.Builder()
                 .url(url)
