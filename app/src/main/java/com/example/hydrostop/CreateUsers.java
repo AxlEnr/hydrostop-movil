@@ -11,8 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -26,11 +29,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class CreateUsers extends AppCompatActivity {
-
-    // Definición de variables
     private EditText etNombre, etApellido, etEmail, etTelefono, etEdad, etShowers, etPassword;
     private AutoCompleteTextView autoCompleteGender;
     private Button btnRegister;
+    private Button btnDeleteUser;
+    private OkHttpClient client;
+    private SharedPreferences sharedPreferences;
 
     
 
@@ -38,6 +42,10 @@ public class CreateUsers extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_users);
+        client = new OkHttpClient();
+        btnDeleteUser = findViewById(R.id.btn_delete_user);
+        btnDeleteUser.setOnClickListener(v -> showUserSelectionDialog());
+        sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
 
         // Inicialización de vistas
         initViews();
@@ -47,6 +55,144 @@ public class CreateUsers extends AppCompatActivity {
 
         // Configurar listeners
         setupListeners();
+    }
+
+    private void showUserSelectionDialog() {
+        // Mostrar diálogo de carga mientras se obtienen los usuarios
+        AlertDialog loadingDialog = new AlertDialog.Builder(this)
+                .setTitle("Cargando usuarios")
+                .setMessage("Obteniendo lista de usuarios...")
+                .setCancelable(false)
+                .create();
+        loadingDialog.show();
+
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "users/";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    loadingDialog.dismiss();
+                    Toast.makeText(CreateUsers.this, "Error al cargar usuarios", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseData = response.body().string();
+                        JSONArray usersArray = new JSONArray(responseData);
+
+                        runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            showUsersListDialog(usersArray);
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            Toast.makeText(CreateUsers.this, "Error al procesar usuarios", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                } else {
+                    runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(CreateUsers.this, "Error al obtener usuarios", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void showUsersListDialog(JSONArray usersArray) {
+        if (usersArray.length() == 0) {
+            Toast.makeText(this, "No hay usuarios registrados", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Crear arrays para nombres e IDs
+            String[] userNames = new String[usersArray.length()];
+            final int[] userIds = new int[usersArray.length()];
+
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject user = usersArray.getJSONObject(i);
+                userNames[i] = user.getString("first_name") + " " + user.getString("last_name") +
+                        " (" + user.getString("email") + ")";
+                userIds[i] = user.getInt("id");
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Seleccione usuario a eliminar");
+            builder.setItems(userNames, (dialog, which) -> {
+                int selectedUserId = userIds[which];
+                String selectedUserName = userNames[which];
+                showDeleteConfirmation(selectedUserId, selectedUserName);
+            });
+            builder.setNegativeButton("Cancelar", null);
+            builder.show();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al mostrar usuarios", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showDeleteConfirmation(int userId, String userName) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmar eliminación")
+                .setMessage("¿Está seguro de eliminar al usuario " + userName + "?")
+                .setPositiveButton("Eliminar", (dialog, which) -> deleteUser(userId))
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void deleteUser(int userId) {
+        // Mostrar diálogo de progreso
+        AlertDialog progressDialog = new AlertDialog.Builder(this)
+                .setTitle("Eliminando usuario")
+                .setMessage("Por favor espere...")
+                .setCancelable(false)
+                .create();
+        progressDialog.show();
+
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "users/deactivate/" + userId + "/";
+        String token = sharedPreferences.getString("access_token", null);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .put(RequestBody.create("", MediaType.parse("application/json")))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(CreateUsers.this, "Error al eliminar usuario", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CreateUsers.this, "Usuario eliminado exitosamente", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(CreateUsers.this, "Error al eliminar usuario", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     private void initViews() {

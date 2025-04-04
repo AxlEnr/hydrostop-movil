@@ -10,6 +10,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -81,7 +85,8 @@ public class MainActivity3 extends AppCompatActivity {
     }
 
     private void loadCurrentConfig() {
-        String url = "http://192.168.0.204:8000/api/shower/config/" + showerId + "/";
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "shower/config/" + showerId + "/";
 
         Request request = new Request.Builder()
                 .url(url)
@@ -116,13 +121,11 @@ public class MainActivity3 extends AppCompatActivity {
         String timeLimitStr = timeLimitView.getText().toString();
         String alertTimeStr = alertTimeView.getText().toString();
 
-        // Validar que se hayan seleccionado valores
         if (timeLimitStr.isEmpty() || alertTimeStr.isEmpty()) {
             Toast.makeText(this, "Selecciona ambos tiempos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Convertir a valores numéricos (segundos)
         int timeLimit = convertTimeToSeconds(timeLimitStr);
         int alertTime = convertTimeToSeconds(alertTimeStr);
 
@@ -131,8 +134,49 @@ public class MainActivity3 extends AppCompatActivity {
             return;
         }
 
-        // Guardar en el backend
-        String url = "http://192.168.0.204:8000/api/shower/update/" + showerId + "/";
+        // Primero obtener todas las regaderas
+        String getAllUrl = getString(R.string.api_url) + "showers";
+
+        Request getAllRequest = new Request.Builder()
+                .url(getAllUrl)
+                .build();
+
+        client.newCall(getAllRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(MainActivity3.this, "Error al obtener regaderas", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseData = response.body().string();
+                        JSONArray showersArray = new JSONArray(responseData);
+                        updateAllShowers(showersArray, timeLimit, alertTime);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateAllShowers(JSONArray showersArray, int timeLimit, int alertTime) {
+        for (int i = 0; i < showersArray.length(); i++) {
+            try {
+                JSONObject shower = showersArray.getJSONObject(i);
+                int showerId = shower.getInt("id");
+                updateSingleShower(showerId, timeLimit, alertTime, i == showersArray.length() - 1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateSingleShower(int showerId, int timeLimit, int alertTime, boolean isLast) {
+        String url = getString(R.string.api_url) + "shower/update/" + showerId + "/";
 
         RequestBody formBody = new FormBody.Builder()
                 .add("shower_time", String.valueOf(timeLimit))
@@ -148,25 +192,28 @@ public class MainActivity3 extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() ->
-                        Toast.makeText(MainActivity3.this, "Error al guardar configuración", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(MainActivity3.this, "Error al actualizar regadera " + showerId, Toast.LENGTH_SHORT).show());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                runOnUiThread(() -> {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(MainActivity3.this, "Configuración guardada", Toast.LENGTH_SHORT).show();
+                if (isLast) { // Solo mostrar mensaje cuando la última regadera se actualice
+                    runOnUiThread(() -> {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(MainActivity3.this, "Configuración guardada en todas las regaderas", Toast.LENGTH_SHORT).show();
 
-                        // Devolver resultados a la actividad anterior
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("TIME_LIMIT", timeLimitStr);
-                        resultIntent.putExtra("ALERT_TIME", alertTimeStr);
-                        setResult(RESULT_OK, resultIntent);
-                        finish();
-                    } else {
-                        Toast.makeText(MainActivity3.this, "Error al guardar", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("TIME_LIMIT", timeLimit);
+                            resultIntent.putExtra("ALERT_TIME", alertTime);
+                            setResult(RESULT_OK, resultIntent);
+                            Intent intent = new Intent(MainActivity3.this, MainActivity2.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(MainActivity3.this, "Error al guardar", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }

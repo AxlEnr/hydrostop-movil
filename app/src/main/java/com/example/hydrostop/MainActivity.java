@@ -3,11 +3,14 @@ package com.example.hydrostop;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONException;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private Button btnsignIn;
     private SharedPreferences sharedPreferences;
+    private TextView forgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         EditText usernameField = findViewById(R.id.usernameField);
         EditText passwordField = findViewById(R.id.passwordField);
         btnsignIn = findViewById(R.id.btnsignIn);
+        forgotPassword = findViewById(R.id.forgotPassword);
+        forgotPassword.setOnClickListener(v -> showForgotPasswordDialog());
 
         btnsignIn.setOnClickListener(v -> {
             String username = usernameField.getText().toString().trim();
@@ -56,6 +62,89 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void showForgotPasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Recuperar contraseña");
+        builder.setMessage("Ingresa tu correo electrónico registrado");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        input.setHint("correo@ejemplo.com");
+        builder.setView(input);
+
+        builder.setPositiveButton("Enviar", (dialog, which) -> {
+            String email = input.getText().toString().trim();
+            if (!email.isEmpty()) {
+                requestPasswordReset(email);
+            } else {
+                Toast.makeText(this, "Por favor ingresa tu correo", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    private void requestPasswordReset(String email) {
+        // Mostrar diálogo de carga
+        AlertDialog loadingDialog = new AlertDialog.Builder(this)
+                .setTitle("Procesando")
+                .setMessage("Verificando tu información...")
+                .setCancelable(false)
+                .create();
+        loadingDialog.show();
+
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "users/request_password_reset/";
+
+        OkHttpClient client = new OkHttpClient();
+
+        try {
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("email", email);
+
+            RequestBody body = RequestBody.create(jsonBody.toString(), JSON);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(MainActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        try {
+                            String responseData = response.body().string();
+                            if (response.isSuccessful()) {
+                                JSONObject jsonResponse = new JSONObject(responseData);
+                                String message = jsonResponse.getString("message");
+                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                            } else {
+                                JSONObject errorResponse = new JSONObject(responseData);
+                                String error = errorResponse.getString("error");
+                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "Error procesando respuesta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        } catch (JSONException e) {
+            loadingDialog.dismiss();
+            Toast.makeText(this, "Error creando la solicitud", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private boolean isUserLoggedIn() {
         return sharedPreferences.contains("access_token");
