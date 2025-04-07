@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -68,15 +69,37 @@ public class MainActivity2 extends AppCompatActivity {
         btnConfigTime = findViewById(R.id.btnconfig_time);
 
         btnConfigTime.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity2.this, MainActivity3.class);
-            startActivity(intent);
-            finish();
+            try {
+                LinearLayout showersContainer = findViewById(R.id.showers_container);
+
+                if (showersContainer == null) {
+                    Log.e("HydroStop", "showers_container es NULL. Verifica que el ID en el XML sea correcto.");
+                    Toast.makeText(MainActivity2.this, "Error: showers_container no encontrado.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Log.d("HydroStop", "showers_container tiene " + showersContainer.getChildCount() + " hijos.");
+
+                if (showersContainer.getChildCount() > 0) {
+                    Intent intent = new Intent(MainActivity2.this, MainActivity3.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(MainActivity2.this, "No hay regaderas registradas para configurar.", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e("HydroStop", "Error en btnConfigTime: " + e.getMessage(), e);
+                Toast.makeText(MainActivity2.this, "Se produjo un error. Revisa Logcat.", Toast.LENGTH_SHORT).show();
+            }
         });
+
+
 
         loadUserData();
         setupNavigation();
         loadAllShowers(); // Cargar regaderas al iniciar
     }
+
 
     private void scanNetworkForShowers() {
         btnAddShower.setText("Escaneando...");
@@ -370,10 +393,12 @@ public class MainActivity2 extends AppCompatActivity {
     private void deleteShower(int showerId, View showerView) {
         String apiUrl = getString(R.string.api_url);
         String url = apiUrl + "showers/delete/" + showerId + "/";
+        String token = sharedPreferences.getString("access_token", null);
 
         Request request = new Request.Builder()
                 .url(url)
                 .delete()
+                .addHeader("Authorization", "Bearer " + token)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {

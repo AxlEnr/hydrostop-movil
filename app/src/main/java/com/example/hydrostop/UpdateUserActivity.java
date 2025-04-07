@@ -7,35 +7,43 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+
 public class UpdateUserActivity extends AppCompatActivity {
 
-    private EditText etFirstName, etLastName, etAge, etPhone, etShowers;
+    private EditText etFirstName, etLastName, etAge, etPhone, etEmail;
     private Button btnSave;
     private SharedPreferences sharedPreferences;
     private RequestQueue requestQueue;
     private String accessToken, userId;
+    private OkHttpClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_user);
-
+        client = new OkHttpClient();
         sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
         requestQueue = Volley.newRequestQueue(this);
         accessToken = sharedPreferences.getString("access_token", "");
@@ -51,16 +59,64 @@ public class UpdateUserActivity extends AppCompatActivity {
         etLastName = findViewById(R.id.et_last_name);
         etAge = findViewById(R.id.et_age);
         etPhone = findViewById(R.id.et_phone);
-        etShowers = findViewById(R.id.et_showers);
         btnSave = findViewById(R.id.btn_save);
+        etEmail = findViewById(R.id.et_email);
     }
 
     private void loadUserData() {
-        etFirstName.setText(sharedPreferences.getString("firstName", ""));
-        etLastName.setText(sharedPreferences.getString("lastName", ""));
-        etAge.setText(String.valueOf(sharedPreferences.getInt("age", 18)));
-        etPhone.setText(sharedPreferences.getString("phone", ""));
-        etShowers.setText(String.valueOf(sharedPreferences.getInt("showers", 5)));
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "user/";
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(UpdateUserActivity.this,
+                            "Error al cargar datos: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                runOnUiThread(() -> {
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            String responseData = response.body().string();
+                            JSONObject userData = new JSONObject(responseData); // Cambia a JSONObject
+                            getInfo(userData);
+                        } else {
+                            Toast.makeText(UpdateUserActivity.this,
+                                    "Error en la respuesta: " + response.code(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(UpdateUserActivity.this,
+                                "Error al procesar datos: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void getInfo(JSONObject userData) throws JSONException {
+        if (userData.has("user")) {
+            etFirstName.setText(userData.getString("user"));
+        }
+        if (userData.has("last_name")) {
+            etLastName.setText(userData.getString("last_name"));
+        }
+        if (userData.has("age")) {
+            etAge.setText(String.valueOf(userData.getInt("age"))); // Convierte int a String
+        }
+        if (userData.has("phone_number")) {
+            etPhone.setText(userData.getString("phone_number"));
+        }
     }
 
     private void setupListeners() {
@@ -72,18 +128,28 @@ public class UpdateUserActivity extends AppCompatActivity {
         String lastName = etLastName.getText().toString().trim();
         String ageStr = etAge.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
-        String showersStr = etShowers.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
 
         int age = ageStr.isEmpty() ? 18 : Integer.parseInt(ageStr);
-        int showers = showersStr.isEmpty() ? 5 : Integer.parseInt(showersStr);
+
 
         JSONObject requestBody = new JSONObject();
         try {
-            requestBody.put("first_name", firstName);
-            requestBody.put("last_name", lastName);
-            requestBody.put("age", age);
-            requestBody.put("phone_number", phone);
-            requestBody.put("shower_per_week", showers);
+            if (!firstName.isEmpty()){
+                requestBody.put("first_name", firstName);
+            }
+            if (!lastName.isEmpty()){
+                requestBody.put("last_name", lastName);
+            }
+            if (!ageStr.isEmpty()) {
+                requestBody.put("age", age);
+            }
+            if (!phone.isEmpty()){
+                requestBody.put("phone_number", phone);
+            }
+            if (!email.isEmpty()){
+                requestBody.put("email", email);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -95,11 +161,11 @@ public class UpdateUserActivity extends AppCompatActivity {
                 response -> {
                     // Actualizar SharedPreferences
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("firstName", firstName);
-                    editor.putString("lastName", lastName);
+                    editor.putString("first_name", firstName);
+                    editor.putString("last_name", lastName);
                     editor.putInt("age", age);
                     editor.putString("phone_number", phone);
-                    editor.putInt("showers_per_week", showers);
+                    editor.putString("email", email);
                     editor.apply();
 
                     Toast.makeText(this, "Información actualizada", Toast.LENGTH_SHORT).show();

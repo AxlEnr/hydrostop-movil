@@ -23,9 +23,6 @@
             android:name=".UpdateUserActivity"
             android:exported="false" />
         <activity
-            android:name=".ChangePasswordActivity"
-            android:exported="false" />
-        <activity
             android:name=".UsuarioScreen"
             android:exported="false" />
         <activity
@@ -33,9 +30,6 @@
             android:exported="false" />
         <activity
             android:name=".CreateUsers"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity5"
             android:exported="false" />
         <activity
             android:name=".MainActivity4"

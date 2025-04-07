@@ -1,98 +1,120 @@
 <!-- Interface for Shower Configuration -->
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/fondo"
-    android:padding="16dp">
+    >
 
-
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_above="@+id/bottom_nav"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/back"
-            android:id="@+id/btnBack"/>
+            android:orientation="vertical"
+            >
 
-        <TextView
-            android:id="@+id/config_time_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="CONFIGURAR TIEMPO DE USO"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"/>
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/back"
+                    android:id="@+id/btnBack"/>
 
-
-    <TextView
-        android:id="@+id/select_time_limit_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Selecciona el tiempo límite de flujo"
-        android:textSize="20sp"
-        android:textColor="#000000"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp"/>
-
-    <AutoCompleteTextView
-        android:id="@+id/ACVWflujo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="10 minutos"
-        android:textSize="20sp"
-        android:background="@color/white"
-        android:padding="10dp"
-        />
+                <TextView
+                    android:id="@+id/config_time_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="CONFIGURAR TIEMPO DE USO"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"/>
+            </LinearLayout>
 
 
-    <TextView
-        android:id="@+id/select_notification_time_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Selecciona el tiempo para enviar notificación de alarma"
-        android:textSize="20sp"
-        android:textColor="#000000"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        />
 
-    <AutoCompleteTextView
-        android:id="@+id/ACVWalarma"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="1 minuto(s)"
-        android:textSize="20sp"
-        android:background="@color/white"
-        android:padding="10dp"/>
+            <TextView
+                android:id="@+id/select_time_limit_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Selecciona el tiempo límite de flujo"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="30dp"/>
 
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Guardar"
-        android:textColor="#FFFFFF"
-        android:background="#B84CAF50"
-        android:layout_marginTop="220dp"
-        android:padding="10dp"
-        android:textSize="20sp"/>
+            <AutoCompleteTextView
+                android:id="@+id/ACVWflujo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="10 minutos"
+                android:textSize="20sp"
+                android:text="10 minutos"
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:padding="10dp"
+                />
+
+
+            <TextView
+                android:id="@+id/select_notification_time_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Selecciona el tiempo para enviar notificación de alarma"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                />
+
+            <AutoCompleteTextView
+                android:id="@+id/ACVWalarma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="1 minuto(s)"
+                android:text="1 minuto(s)"
+                android:textSize="20sp"
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:padding="10dp"/>
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Guardar"
+                android:textColor="#FFFFFF"
+                android:background="#B84CAF50"
+                android:layout_marginTop="220dp"
+                android:padding="10dp"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+
 
     <!-- Bottom Navigation Bar -->
     <LinearLayout
+        android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#AAFFFFFF"
         android:padding="8dp"
-        android:layout_marginTop="42dp">
+        android:layout_alignParentBottom="true">
 
         <ImageView
             android:id="@+id/nav_home"
@@ -114,7 +136,7 @@
             android:id="@+id/nav_profile"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_shower"
+            android:src="@drawable/ic_profile"
             android:layout_weight="1"
             android:gravity="center" />
 
@@ -126,4 +148,4 @@
             android:layout_weight="1"
             android:gravity="center" />
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

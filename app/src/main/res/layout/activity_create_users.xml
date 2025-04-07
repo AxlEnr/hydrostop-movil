@@ -10,7 +10,8 @@
         android:id="@+id/scroll_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:layout_marginBottom="80dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -129,16 +130,6 @@
             />
 
         <Button
-            android:id="@+id/btn_delete_user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Eliminar Usuario"
-            android:background="@color/red"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="16dp"/>
-
-        <!-- Botón de registro -->
-        <Button
             android:id="@+id/btn_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -147,6 +138,23 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="16dp"/>
 
+        <Button
+            android:id="@+id/btn_delete_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Eliminar Usuario"
+            android:background="@color/red"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/btn_activate_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Activar Usuario"
+            android:background="@color/blue"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
     </ScrollView>
@@ -157,7 +165,6 @@
         android:orientation="horizontal"
         android:background="#AAFFFFFF"
         android:padding="8dp"
-        android:layout_marginTop="24dp"
         android:layout_alignParentBottom="true">
 
         <ImageView

@@ -3,6 +3,10 @@ package com.example.hydrostop;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -32,7 +36,7 @@ public class CreateUsers extends AppCompatActivity {
     private EditText etNombre, etApellido, etEmail, etTelefono, etEdad, etShowers, etPassword;
     private AutoCompleteTextView autoCompleteGender;
     private Button btnRegister;
-    private Button btnDeleteUser;
+    private Button btnDeleteUser, btnActivateUser;
     private OkHttpClient client;
     private SharedPreferences sharedPreferences;
 
@@ -44,7 +48,9 @@ public class CreateUsers extends AppCompatActivity {
         setContentView(R.layout.activity_create_users);
         client = new OkHttpClient();
         btnDeleteUser = findViewById(R.id.btn_delete_user);
+        btnActivateUser = findViewById(R.id.btn_activate_user);
         btnDeleteUser.setOnClickListener(v -> showUserSelectionDialog());
+        btnActivateUser.setOnClickListener(v -> showUserSelectionDialog2());
         sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
 
         // Inicialización de vistas
@@ -109,6 +115,146 @@ public class CreateUsers extends AppCompatActivity {
             }
         });
     }
+
+    private void showUserSelectionDialog2() {
+        // Mostrar diálogo de carga mientras se obtienen los usuarios
+        AlertDialog loadingDialog = new AlertDialog.Builder(this)
+                .setTitle("Cargando usuarios")
+                .setMessage("Obteniendo lista de usuarios...")
+                .setCancelable(false)
+                .create();
+        loadingDialog.show();
+
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "users2/";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    loadingDialog.dismiss();
+                    Toast.makeText(CreateUsers.this, "Error al cargar usuarios", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseData = response.body().string();
+                        JSONArray usersArray = new JSONArray(responseData);
+
+                        runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            showUsersListDialog2(usersArray);
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            Toast.makeText(CreateUsers.this, "Error al procesar usuarios", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                } else {
+                    runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(CreateUsers.this, "Error al obtener usuarios", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void showUsersListDialog2(JSONArray usersArray) {
+        if (usersArray.length() == 0) {
+            Toast.makeText(this, "No hay usuarios registrados", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Crear arrays para nombres e IDs
+            String[] userNames = new String[usersArray.length()];
+            final int[] userIds = new int[usersArray.length()];
+
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject user = usersArray.getJSONObject(i);
+                userNames[i] = user.getString("first_name") + " " + user.getString("last_name") +
+                        " (" + user.getString("email") + ")";
+                userIds[i] = user.getInt("id");
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Seleccione usuario a reactivar");
+            builder.setItems(userNames, (dialog, which) -> {
+                int selectedUserId = userIds[which];
+                String selectedUserName = userNames[which];
+                showDeleteConfirmation2(selectedUserId, selectedUserName);
+            });
+            builder.setNegativeButton("Cancelar", null);
+            builder.show();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al mostrar usuarios", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showDeleteConfirmation2(int userId, String userName) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmar reactivación")
+                .setMessage("¿Está seguro de volver a activar al usuario " + userName + "?")
+                .setPositiveButton("Activar", (dialog, which) -> deleteUser2(userId))
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void deleteUser2(int userId) {
+        // Mostrar diálogo de progreso
+        AlertDialog progressDialog = new AlertDialog.Builder(this)
+                .setTitle("Activando usuario")
+                .setMessage("Por favor espere...")
+                .setCancelable(false)
+                .create();
+        progressDialog.show();
+
+        String apiUrl = getString(R.string.api_url);
+        String url = apiUrl + "users/activate/" + userId + "/";
+        String token = sharedPreferences.getString("access_token", null);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .put(RequestBody.create("", MediaType.parse("application/json")))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(CreateUsers.this, "Error al activar usuario", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CreateUsers.this, "Usuario activado exitosamente", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(CreateUsers.this, "Error al activar usuario", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+
 
     private void showUsersListDialog(JSONArray usersArray) {
         if (usersArray.length() == 0) {
@@ -205,12 +351,33 @@ public class CreateUsers extends AppCompatActivity {
         etPassword = findViewById(R.id.edit_password);
         autoCompleteGender = findViewById(R.id.ACVWgenre);
         btnRegister = findViewById(R.id.btn_register);
+
+        InputFilter[] filters = new InputFilter[] {
+                new InputFilter.LengthFilter(15), // Máximo 15 caracteres (lada internacional)
+                new DigitsKeyListener() // Solo permite dígitos
+        };
+        etTelefono.setFilters(filters);
+        etTelefono.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() < 10) {
+                    etTelefono.setError("El teléfono debe tener al menos 10 dígitos");
+                } else {
+                    etTelefono.setError(null);
+                }
+            }
+        });
     }
     private void setupGenderDropdown() {
-        // Obtener opciones de género desde resources
-        String[] genderOptions = getResources().getStringArray(R.array.gender_options);
+        // Definir opciones de género (solo Masculino y Femenino)
+        String[] genderOptions = new String[]{"Masculino", "Femenino", "Otro"};
 
-        // Crear adaptador para el AutoCompleteTextView
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
@@ -218,7 +385,14 @@ public class CreateUsers extends AppCompatActivity {
         );
 
         autoCompleteGender.setAdapter(adapter);
-        autoCompleteGender.setThreshold(1); // Mostrar sugerencias al escribir 1 carácter
+        autoCompleteGender.setThreshold(0); // Mostrar todas las opciones inmediatamente
+        autoCompleteGender.setKeyListener(null); // Bloquear entrada de texto manual
+
+        // Mostrar dropdown al hacer clic
+        autoCompleteGender.setOnClickListener(v -> autoCompleteGender.showDropDown());
+        autoCompleteGender.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) autoCompleteGender.showDropDown();
+        });
     }
 
     private void setupListeners() {
@@ -263,12 +437,35 @@ public class CreateUsers extends AppCompatActivity {
             return false;
         }
 
+        String gender = autoCompleteGender.getText().toString();
+        if (!gender.equals("Masculino") && !gender.equals("Femenino") && !gender.equals("Otro")) {
+            autoCompleteGender.setError("Seleccione Masculino o Femenino u Otro");
+            autoCompleteGender.requestFocus();
+            autoCompleteGender.showDropDown();
+            return false;
+        }
+
+        // Validación del teléfono
+        String phone = etTelefono.getText().toString();
+        if (phone.length() < 10) {
+            etTelefono.setError("El teléfono debe tener al menos 10 dígitos");
+            etTelefono.requestFocus();
+            return false;
+        }
+
+        if (phone.length() > 15) {
+            etTelefono.setError("Máximo 15 dígitos (con lada internacional)");
+            etTelefono.requestFocus();
+            return false;
+        }
+
         return true;
     }
 
     private void registerUser() {
         String apiUrl = getString(R.string.api_url);
         String url = apiUrl + "users/signup/";
+        String token = sharedPreferences.getString("access_token", null);
 
         OkHttpClient client = new OkHttpClient();
         JSONObject jsonBody = new JSONObject();
@@ -283,18 +480,32 @@ public class CreateUsers extends AppCompatActivity {
             jsonBody.put("age", Integer.parseInt(etEdad.getText().toString()));
             jsonBody.put("phone_number", etTelefono.getText().toString());
             jsonBody.put("showers_per_week", Integer.parseInt(etShowers.getText().toString()));
-            jsonBody.put("gender", autoCompleteGender.getText().toString());
 
-            // Crear la solicitud HTTP
+            // Convertir género seleccionado a valor numérico
+            String gender = autoCompleteGender.getText().toString();
+            if (gender.equals("Masculino")) {
+                jsonBody.put("genre", 0);
+            } else if (gender.equals("Femenino")) {
+                jsonBody.put("genre", 1);
+            } else if (gender.equals("Otro")) {
+                jsonBody.put("genre", 2);
+            }
+
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json; charset=utf-8"),
                     jsonBody.toString()
             );
 
-            Request request = new Request.Builder()
+            Request.Builder requestBuilder = new Request.Builder()
                     .url(url)
-                    .post(body)
-                    .build();
+                    .post(body);
+
+            // Solo agregar token si existe (para cuando admin crea usuarios)
+            if (token != null) {
+                requestBuilder.addHeader("Authorization", "Bearer " + token);
+            }
+
+            Request request = requestBuilder.build();
 
             // Enviar la solicitud
             client.newCall(request).enqueue(new Callback() {
@@ -322,13 +533,12 @@ public class CreateUsers extends AppCompatActivity {
                     Toast.makeText(CreateUsers.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
-
     private String generateUsername() {
         // Generar un nombre de usuario combinando nombre, apellido y últimos 4 dígitos del teléfono
         String phone = etTelefono.getText().toString();
         String phoneSuffix = phone.length() > 4 ? phone.substring(phone.length() - 4) : phone;
-        return etNombre.getText().toString().toLowerCase() +
-                etApellido.getText().toString().toLowerCase() +
+        return etNombre.getText().toString().substring(0, 3).toLowerCase().trim() +
+                etApellido.getText().toString().substring(0, 3).toLowerCase().trim() +
                 phoneSuffix;
     }
 

@@ -20,6 +20,13 @@
         android:layout_marginBottom="8dp"/>
 
     <EditText
+        android:id="@+id/et_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
         android:id="@+id/et_age"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,14 +41,6 @@
         android:hint="Teléfono"
         android:inputType="phone"
         android:layout_marginBottom="8dp"/>
-
-    <EditText
-        android:id="@+id/et_showers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Duchas por semana"
-        android:inputType="number"
-        android:layout_marginBottom="16dp"/>
 
     <Button
         android:id="@+id/btn_save"
