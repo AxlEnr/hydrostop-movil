@@ -247,6 +247,7 @@ public class UsuarioScreen extends AppCompatActivity {
         JSONObject requestBody = new JSONObject();
         try {
             requestBody.put("shower_id", showerId);
+            requestBody.put("duration", tiempo);
             // SOLO envía shower_id, el backend debe asignar start_time
         } catch (JSONException e) {
             e.printStackTrace();
