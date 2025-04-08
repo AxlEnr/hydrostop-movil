@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         String role = "user";
         String userId = "";
         int genre = 2;
+        int shower_per_week = 0;
 
         if (jsonResponse.has("user")) {
             try {
@@ -240,6 +241,9 @@ public class MainActivity extends AppCompatActivity {
                 if (user.has("genre")) {
                     genre = user.getInt("genre");
                 }
+                if (user.has("shower_per_week")) {
+                    shower_per_week = user.getInt("shower_per_week");
+                }
             } catch (JSONException e) {
                 Log.w(TAG, "El campo 'user' no tiene el formato esperado", e);
             }
@@ -252,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("first_name", first_name);
         editor.putString("user_id", userId);
         editor.putInt("genre", genre);
+        editor.putInt("shower_per_week", shower_per_week);
         editor.apply();
 
         redirectBasedOnRole();
