@@ -223,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
         String first_name = "";
         String role = "user";
         String userId = "";
+        int genre = 2;
 
         if (jsonResponse.has("user")) {
             try {
@@ -236,6 +237,9 @@ public class MainActivity extends AppCompatActivity {
                 if (user.has("id")) {
                     userId = user.getString("id");
                 }
+                if (user.has("genre")) {
+                    genre = user.getInt("genre");
+                }
             } catch (JSONException e) {
                 Log.w(TAG, "El campo 'user' no tiene el formato esperado", e);
             }
@@ -247,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("role", role);
         editor.putString("first_name", first_name);
         editor.putString("user_id", userId);
+        editor.putInt("genre", genre);
         editor.apply();
 
         redirectBasedOnRole();

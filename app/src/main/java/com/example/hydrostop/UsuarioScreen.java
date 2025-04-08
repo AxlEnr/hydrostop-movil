@@ -44,8 +44,7 @@ public class UsuarioScreen extends AppCompatActivity {
     private ImageView nav_settings;
     SharedPreferences sharedPreferences;
     private TextView textUser;
-
-
+    private String loggedInUserGender; // Para almacenar el género del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +55,16 @@ public class UsuarioScreen extends AppCompatActivity {
         textUser = findViewById(R.id.text_user);
         sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
         btnRefresh = findViewById(R.id.btn_refresh);
+
         nav_settings.setOnClickListener(v -> {
             Intent intent = new Intent(UsuarioScreen.this, MainActivity4.class);
             startActivity(intent);
             finish();
         });
-        btnRefresh.setOnClickListener(v -> {loadAllShowers();});
 
+        btnRefresh.setOnClickListener(v -> {
+            loadAllShowers();
+        });
 
         // Configurar cliente HTTP y handlers
         client = new OkHttpClient();
@@ -70,18 +72,26 @@ public class UsuarioScreen extends AppCompatActivity {
 
         // Inicializar reproductor con sonido personalizado
         initMediaPlayer();
-        loadAllShowers();
+        loadUserDataAndGender(); // Método modificado para cargar género
+    }
 
-        loadUserData();
+    private void loadUserDataAndGender() {
+        String first_name = sharedPreferences.getString("first_name", "Usuario");
+        String role = sharedPreferences.getString("role", "user");
+        loggedInUserGender = String.valueOf(sharedPreferences.getInt("genre", 2)); // 2 = ambos géneros por defecto
 
+        textUser.setText(first_name + " (" + role + ")");
+        loadAllShowers(); // Ahora cargamos las regaderas después de tener el género
     }
 
     private void loadAllShowers() {
         String apiUrl = getString(R.string.api_url);
         String url = apiUrl + "showers";
+        String token = sharedPreferences.getString("access_token", "");
 
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Authorization", "Bearer " + token)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -125,51 +135,92 @@ public class UsuarioScreen extends AppCompatActivity {
         View showerView = getLayoutInflater().inflate(R.layout.shower_item, container, false);
 
         TextView showerName = showerView.findViewById(R.id.shower_name);
+        TextView showerGender = showerView.findViewById(R.id.shower_gender);
         TextView showerTime = showerView.findViewById(R.id.shower_time);
         TextView showerAlert = showerView.findViewById(R.id.shower_alert);
         TextView showerStatus = showerView.findViewById(R.id.shower_status);
-        Button btnOnOff = showerView.findViewById(R.id.btn_delete_shower); // Cambiar nombre a btnOnOff para claridad
+        Button btnOnOff = showerView.findViewById(R.id.btn_delete_shower); // Reutilizamos el botón
 
-        // Configurar datos
+        // Configurar datos básicos
         showerName.setText(shower.getString("name"));
+
+        // Configurar género
+        String genderValue = shower.getString("gender");
+        String genderText = "Género: ";
+        switch (genderValue) {
+            case "0":
+                genderText += "Masculino";
+                break;
+            case "1":
+                genderText += "Femenino";
+                break;
+            case "2":
+                genderText += "Unisex";
+                break;
+            default:
+                genderText += "Desconocido";
+                break;
+        }
+        showerGender.setText(genderText);
+
         showerTime.setText("Tiempo: " + formatTime(shower.getInt("time")));
         showerAlert.setText("Alerta: " + formatTime(shower.getInt("alert_time")) + " antes");
 
-        // Configurar estado inicial
+        // Configurar estado
         int status = shower.getInt("status");
         int available = shower.getInt("available");
         String ipAddress = shower.getString("ip_address");
         int showerId = shower.getInt("id");
         int tiempo = shower.getInt("time");
 
-        showerStatus.setText(status == 1 ? "EN USO" : "SIN USO");
-        showerStatus.setTextColor(getResources().getColor(status == 1 ? R.color.green : R.color.red));
+        String statusText = "SIN USO";
+        int statusColor = getResources().getColor(R.color.red);
 
+        if (available == 0) {
+            statusText = "NO DISPONIBLE";
+        } else if (status == 1) {
+            statusText = "EN USO";
+            statusColor = getResources().getColor(R.color.green);
+        }
+
+        showerStatus.setText(statusText);
+        showerStatus.setTextColor(statusColor);
+
+        // Configurar botón de encendido/apagado
         updateButtonState(btnOnOff, status, available);
 
-        btnOnOff.setOnClickListener(v -> {
-            boolean wantsToTurnOn = btnOnOff.getText().toString().equals("ENCENDER");
+        // Lógica de filtrado por género
+        boolean shouldShowShower = true;
+        String showerGenderValue = shower.getString("gender");
 
-            if (wantsToTurnOn) {
-                // Lógica de encendido
-                updateShowerStatus(showerId, true, () -> {
-                    btnOnOff.setText("APAGAR");
-                    showerStatus.setText("EN USO");
-                    showerStatus.setTextColor(getResources().getColor(R.color.green));
-                    //encenderValvula(tiempo, ipAddress); // Enciende la válvula física
-                });
-            } else {
-                // Lógica de apagado manual
-                updateShowerStatus(showerId, false, () -> {
-                    btnOnOff.setText("ENCENDER");
-                    showerStatus.setText("SIN USO");
-                    showerStatus.setTextColor(getResources().getColor(R.color.red));
-                    //apagarValvula(ipAddress); // Apaga la válvula física
-                });
-            }
-        });
+        if (!"2".equals(showerGenderValue) && !"2".equals(loggedInUserGender)) {
+            shouldShowShower = showerGenderValue.equals(loggedInUserGender);
+        }
 
-        container.addView(showerView);
+        if (shouldShowShower) {
+            btnOnOff.setOnClickListener(v -> {
+                boolean wantsToTurnOn = btnOnOff.getText().toString().equals("ENCENDER");
+
+                if (wantsToTurnOn) {
+                    updateShowerStatus(showerId, true, () -> {
+                        btnOnOff.setText("APAGAR");
+                        showerStatus.setText("EN USO");
+                        showerStatus.setTextColor(getResources().getColor(R.color.green));
+                        encenderValvula(tiempo, ipAddress);
+                    });
+                } else {
+                    updateShowerStatus(showerId, false, () -> {
+                        btnOnOff.setText("ENCENDER");
+                        showerStatus.setText("SIN USO");
+                        showerStatus.setTextColor(getResources().getColor(R.color.red));
+                        apagarValvula(ipAddress);
+                    });
+                }
+            });
+            container.addView(showerView);
+        } else {
+            showerView.setVisibility(View.GONE);
+        }
     }
 
     private void updateButtonState(Button button, int status, int available) {
@@ -332,43 +383,6 @@ public class UsuarioScreen extends AppCompatActivity {
         } catch (JSONException e) {
             Log.e("ShowerHistory", "Error creando JSON", e);
         }
-    }
-    private void getShowerDuration(int showerId, DurationCallback callback) {
-        String url = getString(R.string.api_url) + "shower/config/" + showerId + "/";
-        String token = sharedPreferences.getString("access_token", "");
-
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer " + token)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e("ShowerDuration", "Error al obtener duración", e);
-                callback.onDurationReceived(-1); // Valor de error
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    try {
-                        JSONObject shower = new JSONObject(response.body().string());
-                        int duration = shower.getInt("shower_time");
-                        callback.onDurationReceived(duration);
-                    } catch (Exception e) {
-                        Log.e("ShowerDuration", "Error al parsear respuesta", e);
-                        callback.onDurationReceived(-1);
-                    }
-                } else {
-                    callback.onDurationReceived(-1);
-                }
-            }
-        });
-    }
-
-    interface DurationCallback {
-        void onDurationReceived(int duration);
     }
     // 3. En scheduleAutoShutdown:
     private void scheduleAutoShutdown(int showerId, int tiempoSegundos) {
