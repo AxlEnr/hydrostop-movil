@@ -63,10 +63,10 @@ public class MainActivity2 extends AppCompatActivity {
         // Configurar botones
         btnAddShower = findViewById(R.id.btn_add_shower);
         btnRefresh = findViewById(R.id.btn_refresh);
+        btnConfigTime = findViewById(R.id.btnconfig_time);
 
         btnAddShower.setOnClickListener(v -> scanNetworkForShowers());
         btnRefresh.setOnClickListener(v -> loadAllShowers());
-        btnConfigTime = findViewById(R.id.btnconfig_time);
 
         btnConfigTime.setOnClickListener(v -> {
             try {
@@ -93,13 +93,10 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
 
-
-
         loadUserData();
         setupNavigation();
         loadAllShowers(); // Cargar regaderas al iniciar
     }
-
 
     private void scanNetworkForShowers() {
         btnAddShower.setText("Escaneando...");
@@ -184,37 +181,15 @@ public class MainActivity2 extends AppCompatActivity {
         builder.setTitle("Dispositivos encontrados");
         builder.setItems(devicesArray, (dialog, which) -> {
             String selectedIp = foundDevices.get(which);
-            addNewShower(selectedIp);
+            checkIfIpExists(selectedIp);
         });
         builder.setNegativeButton("Cancelar", null);
         builder.show();
     }
 
-    private void addNewShower(String ipAddress) {
-        // Mostrar diálogo para ingresar nombre de regadera
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Nombre de la regadera");
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("Guardar", (dialog, which) -> {
-            String showerName = input.getText().toString();
-            if (!showerName.isEmpty()) {
-                createShowerOnBackend(showerName, ipAddress);
-            } else {
-                Toast.makeText(this, "Debes ingresar un nombre", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
-    }
-
-    private void createShowerOnBackend(String showerName, String ipAddress) {
-        // Primero verificar si ya existe una regadera con este nombre o IP
+    private void checkIfIpExists(String ipAddress) {
         String apiUrl = getString(R.string.api_url);
-        String checkUrl = apiUrl + "showers/check?name=" + showerName + "&ip=" + ipAddress;
+        String checkUrl = apiUrl + "showers/check?ip=" + ipAddress;
 
         Request checkRequest = new Request.Builder()
                 .url(checkUrl)
@@ -224,7 +199,7 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() ->
-                        Toast.makeText(MainActivity2.this, "Error al verificar regadera", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(MainActivity2.this, "Error al verificar IP", Toast.LENGTH_SHORT).show());
             }
 
             @Override
@@ -233,29 +208,126 @@ public class MainActivity2 extends AppCompatActivity {
                     try {
                         String responseData = response.body().string();
                         JSONObject json = new JSONObject(responseData);
-
-                        boolean nameExists = json.getBoolean("name_exists");
                         boolean ipExists = json.getBoolean("ip_exists");
 
                         runOnUiThread(() -> {
-                            if (nameExists) {
-                                Toast.makeText(MainActivity2.this, "Ya existe una regadera con este nombre", Toast.LENGTH_LONG).show();
-                            } else if (ipExists) {
+                            if (ipExists) {
                                 Toast.makeText(MainActivity2.this, "Ya existe una regadera con esta IP", Toast.LENGTH_LONG).show();
                             } else {
-                                // Si no existe, proceder a crear
-                                proceedWithShowerCreation(showerName, ipAddress);
+                                showNameInputDialog(ipAddress);
                             }
                         });
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(MainActivity2.this, "Error al verificar IP", Toast.LENGTH_SHORT).show());
                 }
             }
         });
     }
 
-    private void proceedWithShowerCreation(String showerName, String ipAddress) {
+    private void showNameInputDialog(String ipAddress) {
+        AlertDialog.Builder nameBuilder = new AlertDialog.Builder(this);
+        nameBuilder.setTitle("Nombre de la regadera");
+
+        final EditText inputName = new EditText(this);
+        inputName.setInputType(InputType.TYPE_CLASS_TEXT);
+        nameBuilder.setView(inputName);
+
+        nameBuilder.setPositiveButton("Siguiente", (dialog, which) -> {
+            String showerName = inputName.getText().toString();
+            if (!showerName.isEmpty()) {
+                checkIfNameExists(showerName, ipAddress);
+            } else {
+                Toast.makeText(this, "Debes ingresar un nombre", Toast.LENGTH_SHORT).show();
+                showNameInputDialog(ipAddress); // Re-show the name dialog
+            }
+        });
+
+        nameBuilder.setNegativeButton("Cancelar", null);
+        nameBuilder.show();
+    }
+
+    private void checkIfNameExists(String showerName, String ipAddress) {
+        String apiUrl = getString(R.string.api_url);
+        String checkUrl = apiUrl + "showers/check?name=" + showerName;
+
+        Request checkRequest = new Request.Builder()
+                .url(checkUrl)
+                .build();
+
+        client.newCall(checkRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(MainActivity2.this, "Error al verificar nombre", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseData = response.body().string();
+                        JSONObject json = new JSONObject(responseData);
+                        boolean nameExists = json.getBoolean("name_exists");
+
+                        runOnUiThread(() -> {
+                            if (nameExists) {
+                                Toast.makeText(MainActivity2.this, "Ya existe una regadera con este nombre", Toast.LENGTH_LONG).show();
+                                showNameInputDialog(ipAddress); // Re-show the name dialog
+                            } else {
+                                showGenderSelectionDialog(showerName, ipAddress);
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(MainActivity2.this, "Error al verificar nombre", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
+    }
+
+    private void showGenderSelectionDialog(String showerName, String ipAddress) {
+        AlertDialog.Builder genderBuilder = new AlertDialog.Builder(this);
+        genderBuilder.setTitle("Género de la regadera");
+        final String[] genders = {"Masculino", "Femenino", "Unisex"};
+        final int[] selectedGenderIndex = {-1}; // To track the selected index
+
+        genderBuilder.setSingleChoiceItems(genders, -1, (dialog, which) -> {
+            selectedGenderIndex[0] = which;
+        });
+
+        genderBuilder.setPositiveButton("Guardar", (dialog, which) -> {
+            if (selectedGenderIndex[0] != -1) {
+                String selectedGender = "";
+                switch (selectedGenderIndex[0]) {
+                    case 0:
+                        selectedGender = "0"; // Male
+                        break;
+                    case 1:
+                        selectedGender = "1"; // Female
+                        break;
+                    case 2:
+                        selectedGender = "2"; // Unisex
+                        break;
+                }
+                createShowerOnBackend(showerName, ipAddress, selectedGender);
+            } else {
+                Toast.makeText(this, "Debes seleccionar un género", Toast.LENGTH_SHORT).show();
+                showGenderSelectionDialog(showerName, ipAddress); // Re-show the gender dialog
+            }
+        });
+
+        genderBuilder.setNegativeButton("Cancelar", null);
+        genderBuilder.show();
+    }
+
+    private void createShowerOnBackend(String showerName, String ipAddress, String gender) {
         String apiUrl = getString(R.string.api_url);
         String url = apiUrl + "showers/create";
 
@@ -266,6 +338,7 @@ public class MainActivity2 extends AppCompatActivity {
                 .add("alert_time", "60")  // 1 minuto por defecto
                 .add("status", "0")  // Sin uso inicialmente
                 .add("available", "1")  // Disponible
+                .add("gender", gender) // Agregar el género
                 .build();
 
         Request request = new Request.Builder()
@@ -287,6 +360,11 @@ public class MainActivity2 extends AppCompatActivity {
                         Toast.makeText(MainActivity2.this, "Regadera creada: " + showerName, Toast.LENGTH_SHORT).show();
                         loadAllShowers(); // Recargar todas las regaderas
                     });
+                } else {
+                    // Log the error response for debugging
+                    Log.e("HydroStop", "Error creating shower: " + response.code() + " " + response.body().string());
+                    runOnUiThread(() ->
+                            Toast.makeText(MainActivity2.this, "Error al crear regadera", Toast.LENGTH_SHORT).show());
                 }
             }
         });
@@ -341,6 +419,7 @@ public class MainActivity2 extends AppCompatActivity {
         View showerView = getLayoutInflater().inflate(R.layout.shower_item, container, false);
 
         TextView showerName = showerView.findViewById(R.id.shower_name);
+        TextView showerGender = showerView.findViewById(R.id.shower_gender); // Get the new TextView
         TextView showerTime = showerView.findViewById(R.id.shower_time);
         TextView showerAlert = showerView.findViewById(R.id.shower_alert);
         TextView showerStatus = showerView.findViewById(R.id.shower_status);
@@ -348,6 +427,26 @@ public class MainActivity2 extends AppCompatActivity {
 
         // Configurar datos
         showerName.setText(shower.getString("name"));
+
+        // Configurar género
+        String genderValue = shower.getString("gender");
+        String genderText = "Género: ";
+        switch (genderValue) {
+            case "0":
+                genderText += "Masculino";
+                break;
+            case "1":
+                genderText += "Femenino";
+                break;
+            case "2":
+                genderText += "Unisex";
+                break;
+            default:
+                genderText += "Desconocido";
+                break;
+        }
+        showerGender.setText(genderText);
+
         showerTime.setText("Tiempo: " + formatTime(shower.getInt("time")));
         showerAlert.setText("Alerta: " + formatTime(shower.getInt("alert_time")) + " antes");
 
@@ -380,7 +479,6 @@ public class MainActivity2 extends AppCompatActivity {
 
         container.addView(showerView);
     }
-
     private void showDeleteConfirmation(int showerId, String showerName, View showerView) {
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar regadera")
