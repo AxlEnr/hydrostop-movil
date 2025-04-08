@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,7 +44,7 @@ public class UsuarioScreen extends AppCompatActivity {
     private int currentAlertTime = 60;
     private ImageView nav_settings;
     SharedPreferences sharedPreferences;
-    private TextView textUser;
+    private TextView textUser, tvShowersPerWeek;
     private String loggedInUserGender; // Para almacenar el género del usuario logueado
 
     @Override
@@ -55,6 +56,11 @@ public class UsuarioScreen extends AppCompatActivity {
         textUser = findViewById(R.id.text_user);
         sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
         btnRefresh = findViewById(R.id.btn_refresh);
+        tvShowersPerWeek = findViewById(R.id.tvShowersPerWeek);
+
+        String showersperweek = String.valueOf(sharedPreferences.getInt("shower_per_week", 0));
+
+        tvShowersPerWeek.setText("Baños restantes de la semana: " + showersperweek);
 
         nav_settings.setOnClickListener(v -> {
             Intent intent = new Intent(UsuarioScreen.this, MainActivity4.class);
@@ -70,9 +76,9 @@ public class UsuarioScreen extends AppCompatActivity {
         client = new OkHttpClient();
         alertHandler = new Handler();
 
-        // Inicializar reproductor con sonido personalizado
+
         initMediaPlayer();
-        loadUserDataAndGender(); // Método modificado para cargar género
+        loadUserDataAndGender();
     }
 
     private void loadUserDataAndGender() {
@@ -83,6 +89,7 @@ public class UsuarioScreen extends AppCompatActivity {
         textUser.setText(first_name + " (" + role + ")");
         loadAllShowers(); // Ahora cargamos las regaderas después de tener el género
     }
+
 
     private void loadAllShowers() {
         String apiUrl = getString(R.string.api_url);
@@ -199,6 +206,11 @@ public class UsuarioScreen extends AppCompatActivity {
 
         if (shouldShowShower) {
             btnOnOff.setOnClickListener(v -> {
+                int remaining = sharedPreferences.getInt("shower_per_week", 0);
+                if(remaining <= 0) {
+                    showToast("Has agotado tus baños semanales", Toast.LENGTH_LONG);
+                    return;
+                }
                 boolean wantsToTurnOn = btnOnOff.getText().toString().equals("ENCENDER");
 
                 if (wantsToTurnOn) {
@@ -214,6 +226,8 @@ public class UsuarioScreen extends AppCompatActivity {
                         showerStatus.setText("SIN USO");
                         showerStatus.setTextColor(getResources().getColor(R.color.red));
                         apagarValvula(ipAddress);
+                        int showerproof = sharedPreferences.getInt("shower_per_week", 0);
+                        updateShowersPerWeek(showerproof - 1);
                     });
                 }
             });
@@ -221,6 +235,76 @@ public class UsuarioScreen extends AppCompatActivity {
         } else {
             showerView.setVisibility(View.GONE);
         }
+    }
+
+    private int showersPerWeek = 0; // Variable de clase para almacenar el contador
+
+    private void updateShowersPerWeek(int newCount) {
+        // Asegurar que no sea negativo
+        if (newCount < 0) newCount = 0;
+
+        // Guardar el valor en la variable de clase
+        this.showersPerWeek = newCount;
+
+        // Actualizar en SharedPreferences
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("shower_per_week", newCount);
+        editor.apply();
+
+        // Actualizar la UI en el hilo principal
+        runOnUiThread(() -> {
+            tvShowersPerWeek.setText("Baños restantes de la semana: " + showersPerWeek);
+
+            if (showersPerWeek <= 0) {
+                disableAllShowerButtons();
+                showToast("Has agotado tus baños semanales", Toast.LENGTH_LONG);
+            }
+        });
+
+        // Actualizar en el servidor
+        updateShowersOnServer(newCount);
+    }
+
+
+    private void disableAllShowerButtons() {
+        LinearLayout container = findViewById(R.id.showers_container);
+        for(int i = 0; i < container.getChildCount(); i++) {
+            View showerView = container.getChildAt(i);
+            Button btn = showerView.findViewById(R.id.btn_delete_shower);
+            if(btn != null) {
+                btn.setEnabled(false);
+                btn.setText("LÍMITE ALCANZADO");
+            }
+        }
+    }
+
+    private void updateShowersOnServer(int newCount) {
+        String url = getString(R.string.api_url) + "user/update_showers/";
+        String token = sharedPreferences.getString("access_token", "");
+
+        RequestBody formBody = new FormBody.Builder()
+                .add("shower_per_week", String.valueOf(newCount))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .put(formBody)
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("API", "Error actualizando baños", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) {
+                if(!response.isSuccessful()) {
+                    Log.e("API", "Ocurrio un error al actualizar los baños");
+                }
+            }
+        });
     }
 
     private void updateButtonState(Button button, int status, int available) {
@@ -299,7 +383,6 @@ public class UsuarioScreen extends AppCompatActivity {
         try {
             requestBody.put("shower_id", showerId);
             requestBody.put("duration", tiempo);
-            // SOLO envía shower_id, el backend debe asignar start_time
         } catch (JSONException e) {
             e.printStackTrace();
         }
