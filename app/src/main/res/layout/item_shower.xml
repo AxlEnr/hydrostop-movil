@@ -1,0 +1,57 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#AAFFFFFF"
+    android:padding="16dp"
+    android:orientation="vertical"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Usuario: "
+        android:textSize="16sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/shower_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regadera: "
+        android:textSize="16sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Inicio: "
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/end_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fin: "
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Duración: "
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/shower_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estado: "
+        android:textSize="14sp"
+        android:textColor="#4CAF50" />
+</LinearLayout>

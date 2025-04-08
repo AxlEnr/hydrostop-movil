@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="@drawable/fondo">
+
+    <!-- Contenido principal con Scroll -->
+    <ScrollView
+        android:id="@+id/scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_marginBottom="80dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,15 +27,9 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
-            android:paddingBottom="16dp"/>
+            android:paddingBottom="16dp" />
 
-        <!-- Nombre de usuario -->
-        <EditText
-            android:id="@+id/edit_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nombre de Usuario"
-            android:padding="12dp"/>
+
 
         <!-- Nombre -->
         <EditText
@@ -36,6 +37,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nombre"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:padding="12dp"/>
 
         <!-- Apellido -->
@@ -44,6 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Apellido"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:padding="12dp"/>
 
         <!-- Email -->
@@ -53,6 +59,9 @@
             android:layout_height="wrap_content"
             android:hint="Correo Electrónico"
             android:inputType="textEmailAddress"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:padding="12dp"/>
 
         <!-- Teléfono -->
@@ -62,6 +71,9 @@
             android:layout_height="wrap_content"
             android:hint="Teléfono"
             android:inputType="phone"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:padding="12dp"/>
 
         <!-- Edad -->
@@ -71,6 +83,9 @@
             android:layout_height="wrap_content"
             android:hint="Edad"
             android:inputType="number"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:padding="12dp"/>
 
         <!-- Género -->
@@ -82,6 +97,8 @@
             android:hint="Genero"
             android:textSize="18sp"
             android:background="@color/white"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
             android:padding="10dp"
             />
 
@@ -92,6 +109,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Duchas por Semana"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
             android:inputType="number"
             android:padding="12dp"/>
 
@@ -103,20 +123,12 @@
             android:layout_height="wrap_content"
             android:hint="Contraseña"
             android:inputType="textPassword"
-            android:padding="12dp"/>
+            android:padding="12dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:textColor="@color/black"
+            />
 
-
-        <Button
-            android:id="@+id/btn_huella"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Registrar huella del usuario"
-            android:background="@color/black"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="16dp"/>
-
-
-        <!-- Botón de registro -->
         <Button
             android:id="@+id/btn_register"
             android:layout_width="match_parent"
@@ -126,46 +138,65 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="16dp"/>
 
-        <!-- Navbar -->
-        <LinearLayout
+        <Button
+            android:id="@+id/btn_delete_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="#AAFFFFFF"
-            android:padding="8dp"
-            android:layout_marginTop="24dp">
+            android:text="Eliminar Usuario"
+            android:background="@color/red"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
 
-            <ImageView
-                android:id="@+id/nav_home"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_home"
-                android:layout_weight="1"
-                android:gravity="center" />
+        <Button
+            android:id="@+id/btn_activate_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Activar Usuario"
+            android:background="@color/blue"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
 
-            <ImageView
-                android:id="@+id/nav_notification"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_bell"
-                android:layout_weight="1"
-                android:gravity="center" />
-
-            <ImageView
-                android:id="@+id/nav_profile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_profile"
-                android:layout_weight="1"
-                android:gravity="center" />
-
-            <ImageView
-                android:id="@+id/nav_settings"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_settings"
-                android:layout_weight="1"
-                android:gravity="center" />
-        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
+    <!-- Navbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#AAFFFFFF"
+        android:padding="8dp"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/nav_home"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_home"
+            android:layout_weight="1"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/nav_notification"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_bell"
+            android:layout_weight="1"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/nav_profile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_profile"
+            android:layout_weight="1"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/nav_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_settings"
+            android:layout_weight="1"
+            android:gravity="center" />
+    </LinearLayout>
+</RelativeLayout>

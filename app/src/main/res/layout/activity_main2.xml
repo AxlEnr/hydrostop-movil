@@ -1,120 +1,107 @@
-<!-- Interface for Shower Usage Details -->
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/fondo"
-    android:padding="16dp">
+    android:background="@drawable/fondo">
 
-    <!-- Header -->
-    <LinearLayout
-        android:id="@+id/header"
+    <!-- Contenido principal con Scroll -->
+    <ScrollView
+        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:layout_marginTop="60dp"
-        android:background="#AAFFFFFF"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottom_nav"
+        android:fillViewport="true">
 
-        <!-- Profile Picture -->
-        <ImageView
-            android:id="@+id/profile_picture"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_profile"
-            android:background="@color/black" />
-
-        <!-- Admin Text -->
-        <TextView
-            android:id="@+id/admin_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Admin"
-            android:textSize="20sp"
-            android:textColor="#000000"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
-
-    <!-- Button for Configuring Time -->
-    <Button
-        android:id="@+id/btnconfig_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Modificar tiempo"
-        android:layout_marginTop="16dp"
-        android:background="@color/blue"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:padding="12dp" />
-
-    <!-- Single Shower Details -->
-    <LinearLayout
-        android:id="@+id/shower_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="#AAFFFFFF"
-        android:orientation="horizontal"
-        android:padding="26dp">
-
-        <ImageView
-            android:id="@+id/shower_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_shower" />
-
+        <!-- Contenedor Principal -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/shower_name"
-                android:layout_width="wrap_content"
+            <!-- Header -->
+            <LinearLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Regadera"
-                android:textColor="#000000"
-                android:textSize="16sp" />
+                android:padding="8dp"
+                android:layout_marginTop="60dp"
+                android:background="#AAFFFFFF"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/shower_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Tiempo: Cargando..."
-                android:textColor="#000000"
-                android:textSize="14sp" />
+                <!-- Profile Picture -->
+                <ImageView
+                    android:id="@+id/profile_picture"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_profile" />
 
-            <TextView
-                android:id="@+id/shower_alert"
-                android:layout_width="wrap_content"
+                <!-- Admin Text -->
+                <TextView
+                    android:id="@+id/text_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Admin"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:layout_marginTop="7dp"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Button for Configuring Time -->
+            <Button
+                android:id="@+id/btnconfig_time"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Alerta: Cargando..."
-                android:textColor="#000000"
-                android:textSize="14sp" />
+                android:text="Modificar tiempo"
+                android:layout_marginTop="16dp"
+                android:background="@color/blue"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp" />
+
+            <!-- Botones de acción -->
+            <Button
+                android:id="@+id/btn_add_shower"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Agregar regadera"
+                android:layout_marginTop="10dp"
+                android:background="@color/green"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/btn_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Actualizar lista"
+                android:layout_marginTop="10dp"
+                android:background="@color/blue"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp" />
+
+            <!-- Contenedor de regaderas dinámicas -->
+            <LinearLayout
+                android:id="@+id/showers_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/shower_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Estado: Cargando..."
-            android:textColor="#C32E1C"
-            android:textSize="14sp" />
-    </LinearLayout>
+    </ScrollView>
 
     <!-- Bottom Navigation Bar -->
     <LinearLayout
+        android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#AAFFFFFF"
         android:padding="8dp"
-        android:layout_marginTop="113dp">
+        android:layout_alignParentBottom="true">
 
         <ImageView
             android:id="@+id/nav_home"
@@ -136,7 +123,7 @@
             android:id="@+id/nav_profile"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_shower"
+            android:src="@drawable/ic_profile"
             android:layout_weight="1"
             android:gravity="center" />
 
@@ -148,4 +135,5 @@
             android:layout_weight="1"
             android:gravity="center" />
     </LinearLayout>
-</LinearLayout>
+
+</RelativeLayout>

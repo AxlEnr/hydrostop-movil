@@ -17,5 +17,11 @@
         <item>14 minutos</item>
         <item>15 minutos</item>
     </string-array>
+    <string name="api_url">http://192.168.1.95:8000/api/</string>
+    <string-array name="gender_options">
+        <item>Masculino</item>
+        <item>Femenino</item>
+        <item>Otro</item>
+    </string-array>
 </resources>
 

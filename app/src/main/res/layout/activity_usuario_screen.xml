@@ -1,11 +1,10 @@
-<!-- Interface for Shower Usage Details -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/fondo"
-    android:padding="16dp">
+    android:background="@drawable/fondo">
 
     <!-- Header -->
     <LinearLayout
@@ -22,113 +21,64 @@
             android:id="@+id/profile_picture"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_profile"
-            android:background="@color/black" />
+            android:src="@drawable/ic_profile" />
 
         <!-- Admin Text -->
         <TextView
-            android:id="@+id/admin_text"
+            android:id="@+id/text_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Usuario"
+            android:text="Admin"
             android:textSize="20sp"
             android:textColor="#000000"
+            android:layout_marginTop="7dp"
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
-
-    <!-- Shower Usage Details -->
-    <LinearLayout
+    <!-- ScrollView for content -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-        <!-- Shower 3 -->
+        <!-- Shower Usage Details -->
         <LinearLayout
-            android:id="@+id/shower_3_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#AAFFFFFF"
             android:orientation="vertical"
-            android:padding="26dp">
+            android:layout_marginTop="16dp">
 
-            <ImageView
-                android:id="@+id/shower_3_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_shower" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/shower_3_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Regadera 3"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/shower_3_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SIN USO"
-                android:textColor="#C32E1C"
-                android:textSize="14sp" />
-
-            <!-- Dentro del LinearLayout de Shower 3, reemplaza el Button existente con: -->
-            <LinearLayout
+            <Button
+                android:id="@+id/btn_refresh"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/encenderButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Encender"/>
-            </LinearLayout>
+                android:text="Actualizar lista"
+                android:layout_marginTop="10dp"
+                android:background="@color/blue"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:layout_marginHorizontal="10dp"/>
 
-
-
-            <!-- Agrega estos TextViews dentro del LinearLayout de cada regadera -->
-            <TextView
-                android:id="@+id/shower_time_info"
-                android:layout_width="wrap_content"
+            <!-- Contenedor de regaderas dinámicas -->
+            <LinearLayout
+                android:id="@+id/showers_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Tiempo: 10 minutos"
-                android:textSize="14sp"
-                android:textColor="#000000"/>
-
-            <TextView
-                android:id="@+id/alert_time_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Alerta: 1 minuto antes"
-                android:textSize="14sp"
-                android:textColor="#000000"/>
-
+                android:orientation="vertical" />
         </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
     <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:id="@+id/bottom_nav"
         android:background="#AAFFFFFF"
         android:padding="8dp"
-        android:layout_marginTop="113dp">
+        android:layout_alignParentBottom="true">
 
         <ImageView
             android:id="@+id/nav_home"
@@ -138,8 +88,6 @@
             android:layout_weight="1"
             android:gravity="center" />
 
-
-
         <ImageView
             android:id="@+id/nav_settings"
             android:layout_width="40dp"
@@ -148,6 +96,5 @@
             android:layout_weight="1"
             android:gravity="center" />
     </LinearLayout>
-
 
 </LinearLayout>

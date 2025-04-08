@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +20,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".UpdateUserActivity"
+            android:exported="false" />
+        <activity
             android:name=".UsuarioScreen"
             android:exported="false" />
         <activity
@@ -23,9 +30,6 @@
             android:exported="false" />
         <activity
             android:name=".CreateUsers"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity5"
             android:exported="false" />
         <activity
             android:name=".MainActivity4"
