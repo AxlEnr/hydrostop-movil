@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="Actualizar lista"
                 android:layout_marginTop="10dp"
-                android:background="@color/blue"
+                android:background="@drawable/rounded_button"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:padding="12dp"
@@ -68,7 +68,11 @@
                 android:gravity="center"
                 android:layout_marginTop="10dp"
                 android:textSize="30dp"
-                android:id="@+id/tvShowersPerWeek" />
+                android:id="@+id/tvShowersPerWeek"
+                android:background="@drawable/rounded_border"
+                android:layout_marginHorizontal="10dp"
+                android:padding="10dp"
+                />
 
             <!-- Contenedor de regaderas dinámicas -->
             <LinearLayout

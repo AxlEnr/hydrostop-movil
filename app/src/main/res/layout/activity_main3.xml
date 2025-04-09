@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:text="Guardar"
                 android:textColor="#FFFFFF"
-                android:background="#B84CAF50"
+                android:background="@drawable/rounded_button"
                 android:layout_marginTop="220dp"
                 android:padding="10dp"
                 android:textSize="20sp"/>

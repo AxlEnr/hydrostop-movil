@@ -35,22 +35,22 @@
     <EditText
         android:id="@+id/usernameField"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:hint="Correo"
         android:background="@drawable/rounded_border"
-        android:padding="10dp"
+        android:padding="16dp"
         android:textColor="@android:color/black" />
 
     <EditText
         android:id="@+id/passwordField"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:hint="Contraseña"
         android:inputType="textPassword"
         android:background="@drawable/rounded_border"
-        android:padding="10dp"
+        android:padding="16dp"
         android:textColor="@android:color/black" />
 
     <Button
@@ -58,6 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginTop="26dp"
+        android:background="@drawable/rounded_button"
         android:text="Iniciar Sesión"
         android:textColor="@android:color/black"
         android:textStyle="bold"

@@ -35,13 +35,10 @@ public class UsuarioScreen extends AppCompatActivity {
 
     private static final int DEFAULT_SHOWER_ID = 1;
     private static final int ALERT_DURATION_MS = 2500; // 2.5 segundos de sonido
-
-    private TextView showerTimeInfo, alertTimeInfo;
-    private Button encenderButton, btnRefresh;
+    private Button btnRefresh;
     private OkHttpClient client;
     private Handler alertHandler;
     private MediaPlayer mediaPlayer;
-    private int currentAlertTime = 60;
     private ImageView nav_settings;
     SharedPreferences sharedPreferences;
     private TextView textUser, tvShowersPerWeek;
@@ -57,6 +54,7 @@ public class UsuarioScreen extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("HydroStopPrefs", MODE_PRIVATE);
         btnRefresh = findViewById(R.id.btn_refresh);
         tvShowersPerWeek = findViewById(R.id.tvShowersPerWeek);
+
 
         String showersperweek = String.valueOf(sharedPreferences.getInt("shower_per_week", 0));
 
@@ -75,8 +73,6 @@ public class UsuarioScreen extends AppCompatActivity {
         // Configurar cliente HTTP y handlers
         client = new OkHttpClient();
         alertHandler = new Handler();
-
-
         initMediaPlayer();
         loadUserDataAndGender();
     }
@@ -179,6 +175,7 @@ public class UsuarioScreen extends AppCompatActivity {
         String ipAddress = shower.getString("ip_address");
         int showerId = shower.getInt("id");
         int tiempo = shower.getInt("time");
+        int alert_time = shower.getInt("alert_time");
 
         String statusText = "SIN USO";
         int statusColor = getResources().getColor(R.color.red);
@@ -218,7 +215,7 @@ public class UsuarioScreen extends AppCompatActivity {
                         btnOnOff.setText("APAGAR");
                         showerStatus.setText("EN USO");
                         showerStatus.setTextColor(getResources().getColor(R.color.green));
-                        encenderValvula(tiempo, ipAddress);
+                        encenderValvula(tiempo, ipAddress, alert_time);
                     });
                 } else {
                     updateShowerStatus(showerId, false, () -> {
@@ -624,7 +621,7 @@ public class UsuarioScreen extends AppCompatActivity {
     }
      */
 
-    private void encenderValvula(int tiempo, String ip) {
+    private void encenderValvula(int tiempo, String ip, int currentAlertTime) {
         String url = "http://" + ip + "/encender?tiempo=" + tiempo;
 
         Request request = new Request.Builder()
@@ -646,6 +643,8 @@ public class UsuarioScreen extends AppCompatActivity {
                     }, ALERT_DURATION_MS);
 
                     showToast("La válvula se cerrará en " + currentAlertTime + " segundos", Toast.LENGTH_LONG);
+                    int showerproof = sharedPreferences.getInt("shower_per_week", 0);
+                    updateShowersPerWeek(showerproof - 1);
                 } catch (IllegalStateException e) {
                     showToast("Error al reproducir sonido");
                 }

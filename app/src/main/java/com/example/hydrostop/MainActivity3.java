@@ -72,6 +72,8 @@
             // Opciones para tiempo de flujo
             String[] flowTimes = new String[]{
                     "10 segundos (prueba)",
+                    "30 segundos",
+                    "1 minuto",
                     "5 minutos",
                     "8 minutos",
                     "10 minutos",
@@ -82,6 +84,8 @@
             // Opciones para tiempo de alerta
             String[] alertTimes = new String[]{
                     "2 segundos (prueba)",
+                    "5 segundos (prueba)",
+                    "10 segundos (prueba)",
                     "30 segundos",
                     "1 minuto",
                     "2 minutos",
@@ -91,12 +95,12 @@
             ArrayAdapter<String> flowAdapter = new ArrayAdapter<>(
                     this, android.R.layout.simple_dropdown_item_1line, flowTimes);
             timeLimitView.setAdapter(flowAdapter);
-            timeLimitView.setThreshold(1); // Mostrar sugerencias desde el primer carácter
+            timeLimitView.setThreshold(1);
             timeLimitView.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) timeLimitView.showDropDown();
             });
             timeLimitView.setOnClickListener(v -> timeLimitView.showDropDown());
-            timeLimitView.setKeyListener(null); // Evitar entrada de texto manual
+            timeLimitView.setKeyListener(null);
 
             ArrayAdapter<String> alertAdapter = new ArrayAdapter<>(
                     this, android.R.layout.simple_dropdown_item_1line, alertTimes);
@@ -106,7 +110,7 @@
                 if (hasFocus) alertTimeView.showDropDown();
             });
             alertTimeView.setOnClickListener(v -> alertTimeView.showDropDown());
-            alertTimeView.setKeyListener(null); // Evitar entrada de texto manual
+            alertTimeView.setKeyListener(null);
         }
 
         private void loadCurrentConfig() {

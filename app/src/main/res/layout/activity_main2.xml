@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="Modificar tiempo"
                 android:layout_marginTop="16dp"
-                android:background="@color/blue"
+                android:background="@drawable/rounded_button"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:padding="12dp" />
@@ -65,9 +65,9 @@
                 android:id="@+id/btn_add_shower"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/rounded_button3"
                 android:text="Agregar regadera"
                 android:layout_marginTop="10dp"
-                android:background="@color/green"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:padding="12dp" />
@@ -77,8 +77,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Actualizar lista"
+                android:background="@drawable/rounded_button"
                 android:layout_marginTop="10dp"
-                android:background="@color/blue"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:padding="12dp" />

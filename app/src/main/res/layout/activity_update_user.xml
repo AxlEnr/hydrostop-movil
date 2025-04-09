@@ -10,6 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre"
+        android:background="@drawable/rounded_border"
+        android:padding="15dp"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <EditText
@@ -17,21 +20,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Apellido"
+        android:background="@drawable/rounded_border"
+        android:padding="15dp"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <EditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_border"
+        android:padding="15dp"
         android:hint="Email"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <EditText
         android:id="@+id/et_age"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_border"
+        android:padding="15dp"
         android:hint="Edad"
         android:inputType="number"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <EditText
@@ -40,12 +52,17 @@
         android:layout_height="wrap_content"
         android:hint="Teléfono"
         android:inputType="phone"
+        android:background="@drawable/rounded_border"
+        android:padding="15dp"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <Button
         android:id="@+id/btn_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:background="@drawable/rounded_button"
         android:text="Guardar Cambios"/>
 
 </LinearLayout>
